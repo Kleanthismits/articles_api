@@ -9,8 +9,6 @@ class ArticlesController < ApplicationController
   end
 
   def show
-    article = Article.find(params[:id])
-
     render json: serializer.new(article)
   end
 
@@ -25,15 +23,23 @@ class ArticlesController < ApplicationController
   end
 
   def update
-    article = current_user.articles.find(params[:id])
-    article.update!(article_params)
+    user_article = current_user.articles.find(params[:id])
+    user_article.update!(article_params)
 
-    render json: serializer.new(article), status: :ok
+    render json: serializer.new(user_article), status: :ok
   rescue ActiveRecord::RecordNotFound
-    authorization_error
+    authorization_error if article
   rescue StandardError
-    render json: ValidationSerializer.serialize(article.errors),
+    render json: ValidationSerializer.serialize(user_article.errors),
            status: :unprocessable_entity
+  end
+
+  def destroy
+    user_article = current_user.articles.find(params[:id])
+    user_article.destroy
+    head :no_content
+  rescue ActiveRecord::RecordNotFound
+    authorization_error if article
   end
 
   private
@@ -44,7 +50,9 @@ class ArticlesController < ApplicationController
       ActionController::Parameters.new
   end
 
-  def save_article; end
+  def article
+    Article.find(params[:id])
+  end
 
   def serializer
     ArticleSerializer

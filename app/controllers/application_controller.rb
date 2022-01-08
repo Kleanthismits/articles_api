@@ -47,4 +47,14 @@ class ApplicationController < ActionController::API
     }
     render json: { 'errors' => [error] }, status: 403
   end
+
+  def not_found_error
+    error = {
+      status: '404',
+      source: { pointer: '/request/url/:id' },
+      title: 'Not found',
+      detail: 'The requested resource does not exist'
+    }
+    render json: { 'errors' => [error] }, status: 404
+  end
 end

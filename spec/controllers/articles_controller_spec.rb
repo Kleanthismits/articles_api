@@ -149,7 +149,7 @@ RSpec.describe ArticlesController do
           }
         end
 
-        subject { post :create, params: valid_attributes}
+        subject { post :create, params: valid_attributes }
 
         it 'should return 201 status' do
           subject
@@ -245,22 +245,71 @@ RSpec.describe ArticlesController do
           }
         end
 
-        subject { patch :update, params: valid_attributes.merge(id: article.id) }
+        context 'when trying to update an existing article' do
+          subject { patch :update, params: valid_attributes.merge(id: article.id) }
 
-        it 'should return 201 status' do
-          subject
-          expect(response).to have_http_status(:ok)
-        end
+          it 'should return 200 status' do
+            subject
+            expect(response).to have_http_status(:ok)
+          end
 
-        it 'should return proper JSON' do
-          subject
-          expect(json_data[:attributes]).to include(valid_attributes[:data][:attributes])
-        end
+          it 'should return proper JSON' do
+            subject
+            expect(json_data[:attributes]).to include(valid_attributes[:data][:attributes])
+          end
 
-        it 'should create the article' do
-          subject
-          expect(article.reload.title).to eq(valid_attributes[:data][:attributes][:title])
+          it 'should update the article' do
+            subject
+            expect(article.reload.title).to eq(valid_attributes[:data][:attributes][:title])
+          end
         end
+      end
+    end
+  end
+
+  describe '#destroy' do
+    let(:user) { create :user }
+    let(:article) { create :article, user: user }
+    let(:access_token) { user.create_access_token }
+
+    subject { delete :destroy, params: { id: article.id } }
+
+    context 'when no authorization provided' do
+      it_behaves_like 'forbidden_requests'
+    end
+
+    context 'when invalid authorization provided' do
+      before { request.headers['authorization'] = 'invalid_token' }
+
+      it_behaves_like 'forbidden_requests'
+    end
+
+    context 'when trying to remove not owned article' do
+      let(:other_user) { create :user }
+      let(:other_article) { create :article, user: other_user }
+
+      subject { delete :destroy, params: { id: other_article.id } }
+      before { request.headers['authorization'] = "Bearer #{access_token.token}" }
+
+      it_behaves_like 'forbidden_requests'
+    end
+
+    context 'when authorized' do
+      before { request.headers['authorization'] = "Bearer #{access_token.token}" }
+
+      it 'returns 204 status' do
+        subject
+        expect(response).to have_http_status(:no_content)
+      end
+
+      it 'returns proper JSON body' do
+        subject
+        expect(response.body).to be_blank
+      end
+
+      it 'should delete the article' do
+        article
+        expect { subject }.to change { user.articles.count }.by(-1)
       end
     end
   end
