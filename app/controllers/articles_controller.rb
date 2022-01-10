@@ -26,7 +26,7 @@ class ArticlesController < ApplicationController
     user_article = current_user.articles.find(params[:id])
     user_article.update!(article_params)
 
-    render json: serializer.new(user_article), status: :ok
+    render json: serializer.new(user_article)
   rescue ActiveRecord::RecordNotFound
     authorization_error if article
   rescue StandardError
