@@ -16,12 +16,12 @@ RSpec.describe ArticlesController do
       expected = json_data.first
 
       aggregate_failures do
-        expect(expected[:id]).to eq article.id.to_s
-        expect(expected[:type]).to eq 'article'
-        expect(expected[:attributes]).to eq(
-          title: article.title,
-          content: article.content,
-          slug: article.slug
+        expect(expected['id']).to eq article.id.to_s
+        expect(expected['type']).to eq 'article'
+        expect(expected['attributes']).to eq(
+          'title' => article.title,
+          'content' => article.content,
+          'slug' => article.slug
         )
       end
     end
@@ -31,7 +31,7 @@ RSpec.describe ArticlesController do
       article = create(:article)
       get :index
 
-      ids = json_data.map { |item| item[:id].to_i }
+      ids = json_data.map { |item| item['id'].to_i }
 
       expect(ids).to eq([article.id, older_article.id])
     end
@@ -42,7 +42,7 @@ RSpec.describe ArticlesController do
       get :index, params: { page: { number: 2, size: 1 } }
 
       expect(json_data.length).to eq 1
-      expect(json_data.first[:id]).to eq article2.id.to_s
+      expect(json_data.first['id']).to eq article2.id.to_s
     end
 
     it 'contains pagination links in the response' do
@@ -50,8 +50,8 @@ RSpec.describe ArticlesController do
 
       get :index, params: { page: { number: 2, size: 1 } }
 
-      expect(json[:links].length).to eq 5
-      expect(json[:links].keys).to eq %i[first prev self next last]
+      expect(json['links'].length).to eq 5
+      expect(json['links'].keys).to eq %w[first prev self next last]
     end
   end
 
@@ -68,12 +68,12 @@ RSpec.describe ArticlesController do
 
     it 'returns a proper JSON' do
       aggregate_failures do
-        expect(json_data[:id]).to eq(article.id.to_s)
-        expect(json_data[:type]).to eq('article')
-        expect(json_data[:attributes]).to eq(
-          title: article.title,
-          content: article.content,
-          slug: article.slug
+        expect(json_data['id']).to eq article.id.to_s
+        expect(json_data['type']).to eq 'article'
+        expect(json_data['attributes']).to eq(
+          'title' => article.title,
+          'content' => article.content,
+          'slug' => article.slug
         )
       end
     end
@@ -99,10 +99,10 @@ RSpec.describe ArticlesController do
       context 'when invalid parameters provided' do
         let(:invalid_attributes) do
           {
-            data: {
-              attributes: {
-                title: '',
-                content: ''
+            'data' => {
+              'attributes' => {
+                'title' => '',
+                'content' => ''
               }
             }
           }
@@ -116,18 +116,18 @@ RSpec.describe ArticlesController do
 
         it 'should return proper error JSON' do
           subject
-          expect(json[:errors]).to include(
+          expect(json['errors']).to include(
             {
-              source: { pointer: '/data/attributes/title' },
-              detail: "Title can't be blank"
+              'source' => { 'pointer' => '/data/attributes/title' },
+              'detail' => "Title can't be blank"
             },
             {
-              source: { pointer: '/data/attributes/content' },
-              detail: "Content can't be blank"
+              'source' => { 'pointer' => '/data/attributes/content' },
+              'detail' => "Content can't be blank"
             },
             {
-              source: { pointer: '/data/attributes/slug' },
-              detail: "Slug can't be blank"
+              'source' => { 'pointer' => '/data/attributes/slug' },
+              'detail' => "Slug can't be blank"
             }
           )
         end
@@ -139,11 +139,11 @@ RSpec.describe ArticlesController do
 
         let(:valid_attributes) do
           {
-            data: {
-              attributes: {
-                title: 'Some title',
-                content: 'Some content',
-                slug: 'some-title'
+            'data' => {
+              'attributes' => {
+                'title' => 'Some title',
+                'content' => 'Some content',
+                'slug' => 'some-title'
               }
             }
           }
@@ -158,7 +158,7 @@ RSpec.describe ArticlesController do
 
         it 'should return proper JSON' do
           subject
-          expect(json_data[:attributes]).to include(valid_attributes[:data][:attributes])
+          expect(json_data['attributes']).to include(valid_attributes['data']['attributes'])
         end
 
         it 'should create the article' do
@@ -200,10 +200,10 @@ RSpec.describe ArticlesController do
       context 'when invalid parameters provided' do
         let(:invalid_attributes) do
           {
-            data: {
-              attributes: {
-                title: '',
-                content: ''
+            'data' => {
+              'attributes' => {
+                'title' => '',
+                'content' => ''
               }
             }
           }
@@ -217,14 +217,14 @@ RSpec.describe ArticlesController do
 
         it 'should return proper error JSON' do
           subject
-          expect(json[:errors]).to include(
+          expect(json['errors']).to include(
             {
-              source: { pointer: '/data/attributes/title' },
-              detail: "Title can't be blank"
+              'source' => { 'pointer' => '/data/attributes/title' },
+              'detail' => "Title can't be blank"
             },
             {
-              source: { pointer: '/data/attributes/content' },
-              detail: "Content can't be blank"
+              'source' => { 'pointer' => '/data/attributes/content' },
+              'detail' => "Content can't be blank"
             }
           )
         end
@@ -235,18 +235,18 @@ RSpec.describe ArticlesController do
 
         let(:valid_attributes) do
           {
-            data: {
-              attributes: {
-                title: 'Some title',
-                content: 'Some content',
-                slug: 'some-title'
+            'data' => {
+              'attributes' => {
+                'title' => 'Some title',
+                'content' => 'Some content',
+                'slug' => 'some-title'
               }
             }
           }
         end
 
         context 'when trying to update an existing article' do
-          subject { patch :update, params: valid_attributes.merge(id: article.id) }
+          subject { patch :update, params: valid_attributes.merge('id' => article.id) }
 
           it 'should return 200 status' do
             subject
@@ -255,12 +255,12 @@ RSpec.describe ArticlesController do
 
           it 'should return proper JSON' do
             subject
-            expect(json_data[:attributes]).to include(valid_attributes[:data][:attributes])
+            expect(json_data['attributes']).to include(valid_attributes['data']['attributes'])
           end
 
           it 'should update the article' do
             subject
-            expect(article.reload.title).to eq(valid_attributes[:data][:attributes][:title])
+            expect(article.reload.title).to eq(valid_attributes['data']['attributes']['title'])
           end
         end
       end
@@ -272,7 +272,7 @@ RSpec.describe ArticlesController do
     let(:article) { create :article, user: user }
     let(:access_token) { user.create_access_token }
 
-    subject { delete :destroy, params: { id: article.id } }
+    subject { delete :destroy, params: { 'id' => article.id } }
 
     context 'when no authorization provided' do
       it_behaves_like 'forbidden_requests'
