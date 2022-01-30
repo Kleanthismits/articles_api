@@ -1,8 +1,8 @@
 require 'rails_helper'
 
-describe Authentication::UserAuthenticator do
+describe Authentication::Oauth do
   describe '#perform' do
-    let(:authenticator) { described_class.new('sample_code') }
+    let(:authenticator) { described_class.new(code: 'sample_code') }
 
     subject { authenticator.perform }
 
@@ -18,9 +18,7 @@ describe Authentication::UserAuthenticator do
       end
 
       it 'should raise an error' do
-        expect { authenticator.perform }.to raise_error(
-          described_class::AuthenticationError
-        )
+        expect { subject }.to raise_error(described_class::AuthenticationError)
         expect(authenticator.user).to be_nil
       end
     end
