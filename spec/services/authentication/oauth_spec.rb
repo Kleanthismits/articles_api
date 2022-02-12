@@ -1,8 +1,8 @@
 require 'rails_helper'
 
-describe Authentication::UserAuthenticator do
+describe Authentication::Oauth do
   describe '#perform' do
-    let(:authenticator) { described_class.new('sample_code') }
+    let(:authenticator) { described_class.new(code: 'sample_code') }
 
     subject { authenticator.perform }
 
@@ -18,9 +18,7 @@ describe Authentication::UserAuthenticator do
       end
 
       it 'should raise an error' do
-        expect { authenticator.perform }.to raise_error(
-          described_class::AuthenticationError
-        )
+        expect { subject }.to raise_error(described_class::AuthenticationError)
         expect(authenticator.user).to be_nil
       end
     end
@@ -43,20 +41,15 @@ describe Authentication::UserAuthenticator do
           .and_return(user_data)
       end
 
-      it 'should save the user when ti does not exist' do
+      it 'should save the user when does not exist' do
         expect { subject }.to change { User.count }.by 1
         expect(User.last.name).to eq('John Smith')
       end
 
       it 'should reuse already registered user' do
         user = create :user, user_data
-        expect { subject }.not_to change { User.count }
+        expect { subject }.not_to(change { User.count })
         expect(authenticator.user).to eq user
-      end
-
-      it "should create and set user's access token" do
-        expect { subject }.to change { AccessToken.count }.by(1)
-        expect(authenticator.access_token).to be_present
       end
     end
   end
