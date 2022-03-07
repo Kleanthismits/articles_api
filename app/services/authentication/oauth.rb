@@ -21,8 +21,8 @@ module Authentication
 
     def client
       @client ||= Octokit::Client.new(
-        client_id: ENV['GITHUB_CLIENT_ID'],
-        client_secret: ENV['GITHUB_CLIENT_SECRET']
+        client_id: Rails.application.credentials[:GITHUB_CLIENT_ID],
+        client_secret: Rails.application.credentials[:GITHUB_CLIENT_SECRET]
       )
     end
 
